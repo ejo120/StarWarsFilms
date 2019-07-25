@@ -68,11 +68,17 @@ namespace StarWarsFilms
         private static void WriteRow(CharacterModel character)
         {
             var path = AppDomain.CurrentDomain.BaseDirectory + @"UserCharNames.csv";
-            using (var writer = new StreamWriter(path, false))
+            var fileExsits = File.Exists(path);
+
+            using (var writer = new StreamWriter(path, true))
+            using (var csv = new CsvWriter(writer))
             {
-                using (var csv = new CsvWriter(writer))
                 {
-                    csv.WriteHeader<CharacterModel>();
+                    if (!fileExsits)
+                    {
+                        csv.WriteHeader<CharacterModel>();
+                    }
+
                     csv.NextRecord();
                     csv.WriteRecord(character);
                 }
@@ -121,7 +127,7 @@ namespace StarWarsFilms
                     try { myCharacter.edited = Convert.ToDateTime(fields[11]); } catch { myCharacter.edited = new DateTime(); }
                     myCharacter.url = fields[12];
 
-                    characterList.Add(myCharacter); 
+                    characterList.Add(myCharacter);
                 }
 
             }
