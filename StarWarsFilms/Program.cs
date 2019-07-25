@@ -27,7 +27,7 @@ namespace StarWarsFilms
 
                 try
                 {
-                    //CharacterModel person = GetCharacterById(Int32.Parse(idText));
+
                     CharacterModel person = await GetStarWarsCharacter(idText);
                     //write response
                     Console.WriteLine($"{ person.name } is a { person.gender } born in { person.birth_year }. ");
