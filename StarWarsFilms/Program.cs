@@ -26,7 +26,8 @@ namespace StarWarsFilms
                 string idText = Console.ReadLine();
 
                 try
-                { 
+                {
+                    //CharacterModel person = GetCharacterById(Int32.Parse(idText));
                     CharacterModel person = await GetStarWarsCharacter(idText);
                     //write response
                     Console.WriteLine($"{ person.name } is a { person.gender } born in { person.birth_year }. ");
@@ -35,8 +36,6 @@ namespace StarWarsFilms
                 {
                     Console.WriteLine($"Error: { ex.Message }");
                 }
-                //Console.Write("Would you like to edit this Character's name? (yes/no:)");
-                
 
                 Console.Write("Do you want to look up another character (yes/no): ");
                 lookUpAnother = Console.ReadLine();
@@ -69,8 +68,7 @@ namespace StarWarsFilms
         private static void WriteRow(CharacterModel character)
         {
             var path = AppDomain.CurrentDomain.BaseDirectory + @"UserCharNames.csv";
-           
-                var fileExsits = File.Exists(path);
+            var fileExsits = File.Exists(path);
 
             using (var writer = new StreamWriter(path, true))
             using (var csv = new CsvWriter(writer))
@@ -78,9 +76,9 @@ namespace StarWarsFilms
                 {
                     if (!fileExsits)
                     {
-
                         csv.WriteHeader<CharacterModel>();
                     }
+
                     csv.NextRecord();
                     csv.WriteRecord(character);
                 }
@@ -129,7 +127,7 @@ namespace StarWarsFilms
                     try { myCharacter.edited = Convert.ToDateTime(fields[11]); } catch { myCharacter.edited = new DateTime(); }
                     myCharacter.url = fields[12];
 
-                    characterList.Add(myCharacter); 
+                    characterList.Add(myCharacter);
                 }
 
             }
