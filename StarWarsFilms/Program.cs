@@ -55,6 +55,7 @@ namespace StarWarsFilms
             Console.ReadLine();
         }
 
+        //Rewriting CSV
         private static void WriteStarWarsCharacter(CharacterModel characterModel)
         {
             var path = AppDomain.CurrentDomain.BaseDirectory + @"UserCharNames.csv";
@@ -177,7 +178,7 @@ namespace StarWarsFilms
             return characterList;
         }
 
-
+        //Calling Characters
         private static CharacterModel GetCharacterById(string id)
         {
             var path = AppDomain.CurrentDomain.BaseDirectory + @"UserCharNames.csv";
