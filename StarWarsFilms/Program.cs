@@ -24,11 +24,11 @@ namespace StarWarsFilms
             { //Write Character Lookup
                 Console.Write("Pick a number to look up different Star Wars Characters: ");
                 string idText = Console.ReadLine();
-
+                CharacterModel person = null;
                 try
                 {
 
-                    CharacterModel person = await GetStarWarsCharacter(idText);
+                    person = await GetStarWarsCharacter(idText);
                     //write response
                     Console.WriteLine($"{ person.name } is a { person.gender } born in { person.birth_year }. ");
                 }
@@ -37,32 +37,74 @@ namespace StarWarsFilms
                     Console.WriteLine($"Error: { ex.Message }");
                 }
 
-                Console.Write("Do you want to look up another character (yes/no): ");
+                Console.Write("Do you want to look up another character type (1) or modify a character type (2) or exit (0): ");
+
                 lookUpAnother = Console.ReadLine();
 
+                if(lookUpAnother == "2")
+                {
+                    Console.Write("Please enter a new name for this character: ");
+                    var newName = Console.ReadLine();
+                    person.name = newName;
+                    WriteStarWarsCharacter(person);
+                    lookUpAnother = "1";
+                }
+
                 Console.Clear();
-            } while (lookUpAnother.ToLower() == "yes");
+            } while (lookUpAnother.ToLower() == "1");
             Console.ReadLine();
         }
 
+        private static void WriteStarWarsCharacter(CharacterModel characterModel)
+        {
+            var path = AppDomain.CurrentDomain.BaseDirectory + @"UserCharNames.csv";
+            var config = new CsvHelper.Configuration.Configuration();
+            config.MissingFieldFound = null;
+            config.HasHeaderRecord = true;
+            config.HeaderValidated = null;
+            using (var reader = new StreamReader(path))
+
+            {
+                using (var csv = new CsvReader(reader, config))
+                {
+                    var characters = csv.GetRecords<CharacterModel>().ToList();
+                    reader.Close();
+                    var character = characters.Where(x => x.url == characterModel.url).FirstOrDefault();
+                    characters.Remove(character);
+                    characters.Add(characterModel);
+                    File.Delete(path);
+                    characters.ForEach(WriteRow);
+                }
+
+            }
+        }
         //reading API
         private static async Task<CharacterModel> GetStarWarsCharacter(string id)
         {
-            string url = $"https://swapi.co/api/people/{ id }/";
-
-            using (HttpResponseMessage response = await apiClient.GetAsync(url))
+            var characterFromCsv = GetCharacterById(id);
+            if (characterFromCsv == null)
             {
-                if (response.IsSuccessStatusCode)
+                string url = $"https://swapi.co/api/people/{ id }/";
+
+                using (HttpResponseMessage response = await apiClient.GetAsync(url))
                 {
-                    CharacterModel output = await response.Content.ReadAsAsync<CharacterModel>();
-                    WriteRow(output);
-                    return output;
-                }
-                else
-                {
-                    throw new Exception(response.ReasonPhrase);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        CharacterModel output = await response.Content.ReadAsAsync<CharacterModel>();
+                        WriteRow(output);
+                        return output;
+                    }
+                    else
+                    {
+                        throw new Exception(response.ReasonPhrase);
+                    }
                 }
             }
+            else
+            {
+                return characterFromCsv;
+            }
+
         }
         //write to the csv file
         private static void WriteRow(CharacterModel character)
@@ -136,7 +178,7 @@ namespace StarWarsFilms
         }
 
 
-        private static CharacterModel GetCharacterById(int id)
+        private static CharacterModel GetCharacterById(string id)
         {
             var path = AppDomain.CurrentDomain.BaseDirectory + @"UserCharNames.csv";
             var config = new CsvHelper.Configuration.Configuration();
